@@ -1,0 +1,38 @@
+# ~/.bash_profile: executed by bash for login shells.
+
+# MOTD
+if [[ -z "$DID_MOTD" ]]; then
+    echo "💻 $(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')"
+    echo "📆 $(date)"
+    echo "🔋 $(uptime -p) (since $(uptime -s))"
+    command vcgencmd >/dev/null 2>&1 && echo "🌡️ $(vcgencmd  measure_temp | cut -d= -f2)"
+    DID_MOTD=1;
+fi
+
+# Load the dotfiles
+for FILE in alias functions prompt extras
+do
+	[ -f ~/.$FILE ] && source ~/.$FILE;
+done
+unset FILE
+
+
+# remove duplicates in PATH : when we re-run this script, it wont add ~/bin again
+PATH=~/bin:$PATH
+PATH=`printf %s "$PATH" | awk -v RS=: '{ if (!arr[$0]++) {printf("%s%s",!ln++?"":":",$0)}}'`
+export PATH=$PATH
+
+# number of commands to remember in the command history (the default value is 500)
+export HISTSIZE=2000
+# maximum number of lines contained in the history file (the default value is 500)
+export HISTFILESIZE=2000
+# Append to history instead of overwrite
+shopt -s histappend
+# Ignore redundant or space commands and erase duplicates
+HISTCONTROL=ignoreboth:erasedups
+# Ignore more
+HISTIGNORE='ls:pwd:clear:history'
+# Multiple commands on one line show up as a single line
+shopt -s cmdhist
+# Append new history lines, clear the history list, re-read the history list, print prompt.
+export PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"
