@@ -34,7 +34,7 @@ __build_ps1() {
     local base="${green}\u${green}@${lgreen}\h${white}:${lblue}\w "
     local gitpart=""
     if git rev-parse --is-inside-work-tree &>/dev/null; then
-        # If branch : in cyan
+        # branch in cyan
         local txt; txt="$(gitstatusshort)"
         gitpart="${cyan}${txt}${reset}"
 
@@ -42,12 +42,11 @@ __build_ps1() {
         gitpart="${gitpart//\?/${lpurple}?${reset}}"
         gitpart="${gitpart//M/${lred}M${reset}}"
         gitpart="${gitpart//✓/${green}✓${reset}}"
-
-        PS1="${base}${gitpart} ${white}\\$ ${reset}"
-    else
-        PS1="${base}${white}\\$ ${reset}"
     fi
+
+    PS1="${VIRTUAL_ENV_PROMPT}${base}${gitpart} ${white}\\$ ${reset}"
 }
+
 
 PROMPT_COMMAND="__build_ps1"
 
