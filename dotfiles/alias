@@ -5,3 +5,5 @@ alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 alias rm='rm -i'
 alias pico='nano'
+alias cd-="cd ~-"
+alias cdp="cd ~-"
