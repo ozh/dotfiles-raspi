@@ -23,8 +23,8 @@ gitstatusshort() {
     git rev-parse --is-inside-work-tree &>/dev/null || return
     local status="OK" branch marks=""
     branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null) || return
-    [[ -n $(git ls-files -o --exclude-standard) ]] && marks+="? " && status="NOK"
-    [[ -n $(git ls-files -m) ]] && marks+="M " && status="NOK"
+    [[ -n $(git ls-files -o --exclude-standard) ]] && marks+="?" && status="NOK"
+    [[ -n $(git ls-files -m) ]] && marks+="M" && status="NOK"
     [[ "$status" == "OK" ]] && marks="✓"
     printf '%s%s' "$branch" "$marks"
 }
