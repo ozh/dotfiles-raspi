@@ -1,5 +1,5 @@
 
-# Shell colors
+# Shell colors -- safe for PS1 with \[ \]
 reset="\[\033[0m\]"      # Neutral
 black="\[\033[0;30m\]"  # Black
 dgray="\[\033[1;30m\]"  # Dark Gray
@@ -18,36 +18,39 @@ lcyan="\[\033[1;36m\]" # Light Cyan
 lgray="\[\033[0;37m\]" # Light Gray
 white="\[\033[1;37m\]" # White
 
-
-function gitstatusshort {
-    # Do nothing if not a git repo
-    git rev-parse --is-inside-work-tree &>/dev/null || return;
-
-    STATUS="OK";
-
-    # branch in cyan
-    echo -ne "\e[0;36m$(git rev-parse --abbrev-ref HEAD)"
-
-    # We have untracked files ? light purple "?"
-    if [[ $(git ls-files -o --exclude-standard) ]]; then echo -ne "\e[1;35m?"; STATUS="NOK"; fi
-
-    # We have modified files ? light red "M"
-    if [[ $(git ls-files -m) ]]; then echo -ne "\e[1;31mM"; STATUS="NOK"; fi
-
-    # Or, we are all clean : green "*"
-    if [[ "$STATUS" == "OK" ]]; then echo -ne "\e[0;32m✓"; fi
+# Git status without colors -- just raw text
+gitstatusshort() {
+    git rev-parse --is-inside-work-tree &>/dev/null || return
+    local status="OK" branch marks=""
+    branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null) || return
+    [[ -n $(git ls-files -o --exclude-standard) ]] && marks+="? " && status="NOK"
+    [[ -n $(git ls-files -m) ]] && marks+="M " && status="NOK"
+    [[ "$status" == "OK" ]] && marks="✓"
+    printf '%s%s' "$branch" "$marks"
 }
 
+# Build PS1
+__build_ps1() {
+    local base="${green}\u${green}@${lgreen}\h${white}:${lblue}\w "
+    local gitpart=""
+    if git rev-parse --is-inside-work-tree &>/dev/null; then
+        # If branch : in cyan
+        local txt; txt="$(gitstatusshort)"
+        gitpart="${cyan}${txt}${reset}"
 
-# Set prompt.
-PS1="\[${green}\]\u";                # username
-PS1+="\[${green}\]@";                # @
-PS1+="\[${lgreen}\]\h";              # host
-PS1+="\[${white}:";                  # :
-PS1+="\[${lblue}\]\w ";              # working directory full path
-PS1+="\$(gitstatusshort) ";          # git repository details
-PS1+="\[${white}\]\$ \[${reset}\]";  # $ (and reset color)
-export PS1;
+        # color the git status markers : ? -> violet, M -> red, ✓ -> green
+        gitpart="${gitpart//\?/${lpurple}?${reset}}"
+        gitpart="${gitpart//M/${lred}M${reset}}"
+        gitpart="${gitpart//✓/${green}✓${reset}}"
 
-PS2="\[${yellow}\]→ \[${reset}\]";
-export PS2;
+        PS1="${base}${gitpart} ${white}\\$ ${reset}"
+    else
+        PS1="${base}${white}\\$ ${reset}"
+    fi
+}
+
+PROMPT_COMMAND="__build_ps1"
+
+# PS2
+PS2="${yellow}→ ${reset}"
+export PS2
