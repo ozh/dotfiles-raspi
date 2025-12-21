@@ -23,9 +23,9 @@ PATH=`printf %s "$PATH" | awk -v RS=: '{ if (!arr[$0]++) {printf("%s%s",!ln++?""
 export PATH=$PATH
 
 # number of commands to remember in the command history (the default value is 500)
-export HISTSIZE=2000
+export HISTSIZE=10000
 # maximum number of lines contained in the history file (the default value is 500)
-export HISTFILESIZE=2000
+export HISTFILESIZE=20000
 # Append to history instead of overwrite
 shopt -s histappend
 # Ignore redundant or space commands and erase duplicates
@@ -36,3 +36,9 @@ HISTIGNORE='ls:pwd:clear:history'
 shopt -s cmdhist
 # Append new history lines, clear the history list, re-read the history list, print prompt.
 export PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"
+
+# Prevent file overwrite without `>|` : `echo "ok" > ok && echo "nok" > ok` → "cannot overwrite existing file"
+set -o noclobber
+
+# Update window size after every command
+shopt -s checkwinsize"
