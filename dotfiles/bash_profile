@@ -2,7 +2,7 @@
 
 # MOTD
 if [[ -z "$DID_MOTD" ]]; then
-    echo "💻 $(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')"
+    echo "💻 $(hostname -I | cut -d' ' -f1)"
     echo "📆 $(date)"
     echo "🔋 $(uptime -p) (since $(uptime -s))"
     command vcgencmd >/dev/null 2>&1 && echo "🌡️ $(vcgencmd  measure_temp | cut -d= -f2)"
